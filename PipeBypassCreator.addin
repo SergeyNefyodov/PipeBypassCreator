@@ -1,0 +1,10 @@
+﻿<RevitAddIns>
+    <AddIn Type="Application">
+        <Name>PipeBypassCreator</Name>
+        <Assembly>PipeBypassCreator/PipeBypassCreator.dll</Assembly>
+        <AddInId>3FF8FD0B-A11E-4CCF-976F-AB0637224CED</AddInId>
+        <FullClassName>PipeBypassCreator.Application</FullClassName>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+    </AddIn>
+</RevitAddIns>
