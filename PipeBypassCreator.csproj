@@ -77,10 +77,6 @@
         <Resource Include="Resources\Icons\RibbonIcon32.png" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="ViewModels\Objects" />
-    </ItemGroup>
-
     <Target Name="CopyFiles" AfterTargets="CoreBuild">
         <ItemGroup>
             <RootItem Include="$(ProjectDir)*.addin" />

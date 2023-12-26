@@ -13,7 +13,7 @@
     WindowStartupLocation="CenterScreen"
     Title="Создание обхода труб"
     SizeToContent="Height"
-    Width="300">
+    Width="320">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -37,7 +37,7 @@
                 Width="270"
                 Padding="5">
             <TextBox.Text>
-                <Binding Path="Corner" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                <Binding Path="Offset" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                     <Binding.ValidationRules>
                         <utils:IntValidationRule ValidationStep="CommittedValue"/>
                     </Binding.ValidationRules>
@@ -56,7 +56,7 @@
             Width="270"
             Padding="5">
             <TextBox.Text>
-                <Binding Path="Offset" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                <Binding Path="Corner" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
                     <Binding.ValidationRules>
                         <utils:IntValidationRule ValidationStep="CommittedValue"/>
                     </Binding.ValidationRules>
@@ -79,7 +79,8 @@
                 Padding="5" 
                 Width="120"
                 Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineRadioButton}"
-                Content="Горизонтальная" IsChecked="{Binding IsHorizontal}"/>
+                Content="Горизонтальная"
+                IsChecked="{Binding IsHorizontal}"/>
             <RadioButton
                 GroupName="pipeType"
                 Margin="5"
@@ -96,21 +97,53 @@
             Margin="5"
             Orientation="Horizontal" 
             Visibility="{Binding IsHorizontal, Converter={converters:BoolVisibilityConverter}}">
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="vert" Content="Вниз"/>
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="vert" Content="Вверх"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=downVert}"
+                Style="{StaticResource MaterialDesignRadioButton}" 
+                Margin="5"
+                GroupName="vert" 
+                Content="Вниз"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=upVert}"
+                Style="{StaticResource MaterialDesignRadioButton}" 
+                Margin="5"
+                GroupName="vert" 
+                Content="Вверх"/>
         </StackPanel>
         <StackPanel 
             Margin="5" 
             Orientation="Horizontal" 
             Visibility="{Binding IsHorizontal, Converter={converters:InverseBoolVisibilityConverter}}">
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="hor" Content="Влево"/>
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="hor" Content="Вперёд"/>
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="hor" Content="Вправо"/>
-            <RadioButton Style="{StaticResource MaterialDesignRadioButton}" Margin="5" GroupName="hor" Content="Назад"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=left}"
+                Style="{StaticResource MaterialDesignRadioButton}"
+                Margin="5"
+                GroupName="hor"
+                Content="Влево"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=upHor}"
+                Style="{StaticResource MaterialDesignRadioButton}" 
+                Margin="5" 
+                GroupName="hor"
+                Content="Вперёд"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=right}"
+                Style="{StaticResource MaterialDesignRadioButton}"
+                Margin="5" 
+                GroupName="hor" 
+                Content="Вправо"/>
+            <RadioButton 
+                IsChecked="{Binding Direction, Converter={converters:EnumBooleanConverter}, ConverterParameter=downHor}"
+                Style="{StaticResource MaterialDesignRadioButton}"
+                Margin="5"
+                GroupName="hor"
+                Content="Назад"/>
         </StackPanel>
-        <CheckBox Margin="10" Content="Работать циклично"/>
+        <CheckBox Margin="10" Content="Выбор с привязкой" IsChecked="{Binding HasSnap}"/>
+        <CheckBox Margin="10" Content="Работать циклично" IsChecked="{Binding IsCyclic}"/>
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
             <Button 
+                Command="{Binding CreateDuckCommand}"
                 Style="{StaticResource MaterialDesignRaisedLightButton}"
                 materialDesign:ButtonAssist.CornerRadius="10"
                 Margin="10"

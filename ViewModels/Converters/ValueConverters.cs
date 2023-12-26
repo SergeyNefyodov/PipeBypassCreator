@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using PipeBypassCreator.ViewModels.Enums;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -54,6 +55,39 @@ namespace PipeBypassCreator.ViewModels.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return !(bool)value!;
+        }
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+    }
+
+    public class EnumBooleanConverter : MarkupExtension, IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;            
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            switch ((string)parameter)
+            {
+                case "upVert":
+                    return Direction.UpVertical;
+                case "downVert":
+                    return Direction.DownVertical;
+                case "upHor":
+                    return Direction.UpHorizontal;
+                case "downHor":
+                    return Direction.DownHorizontal;
+                case "left":
+                    return Direction.Left;
+                case "right":
+                    return Direction.Right;
+                default: return Binding.DoNothing;
+            }
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
