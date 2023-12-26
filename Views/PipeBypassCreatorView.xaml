@@ -154,6 +154,7 @@
                 materialDesign:ButtonAssist.CornerRadius="10"
                 Margin="10"
                 Content="Отмена"
+                IsCancel="True"
                 Width="100"/>            
         </StackPanel>
     </StackPanel>

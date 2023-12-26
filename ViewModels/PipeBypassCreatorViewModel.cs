@@ -14,7 +14,7 @@ namespace PipeBypassCreator.ViewModels
 {
     public sealed partial class PipeBypassCreatorViewModel : ObservableObject
     {
-        [ObservableProperty] private bool _isHorizontal;
+        [ObservableProperty] private bool _isHorizontal = true;
         [ObservableProperty] private bool _hasSnap;
         [ObservableProperty] private bool _isCyclic;
         [ObservableProperty] private Direction _direction;
@@ -51,7 +51,7 @@ namespace PipeBypassCreator.ViewModels
 
         [RelayCommand(CanExecute = nameof(CanCreateDuck))] private void CreateDuck()
         {
-            RaiseCloseRequest();
+            RaiseHideRequest();
             do
             {
                 try
@@ -97,6 +97,7 @@ namespace PipeBypassCreator.ViewModels
                 }
             }
             while (IsCyclic);
+            RaiseShowRequest();
         }
 
         private bool CanCreateDuck()
@@ -107,17 +108,24 @@ namespace PipeBypassCreator.ViewModels
         private MEPCurve SelectPoints()
         {
             var filter = new SelectionFilter();
-            firstReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, filter, "Выберите точку на первом элементе");
+            firstReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, filter, 
+                "Выберите точку на первом элементе");
+
             filter.Element = RevitApi.Document.GetElement(firstReference);
-            secondReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, filter, "Выберите вторую точку на том же элементе");
+
+            secondReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, filter, 
+                "Выберите вторую точку на том же элементе");
             return RevitApi.Document.GetElement(firstReference) as MEPCurve;
         }
 
         private MEPCurve SelectPointsWithSnap()
         {
-            firstReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, new SelectionFilter(), "Выберите элемент для построения обхода");
-            firstPoint = RevitApi.UiDocument.Selection.PickPoint((ObjectSnapTypes)1023, "Укажите первую точку");
-            secondPoint = RevitApi.UiDocument.Selection.PickPoint((ObjectSnapTypes)1023, "Укажите вторую точку");
+            firstReference = RevitApi.UiDocument.Selection.PickObject(ObjectType.Element, new SelectionFilter(),
+                "Выберите элемент для построения обхода");
+            firstPoint = RevitApi.UiDocument.Selection.PickPoint((ObjectSnapTypes)1023,
+                "Укажите первую точку");
+            secondPoint = RevitApi.UiDocument.Selection.PickPoint((ObjectSnapTypes)1023, 
+                "Укажите вторую точку");
             return RevitApi.Document.GetElement(firstReference) as MEPCurve;
         }
 
@@ -143,7 +151,6 @@ namespace PipeBypassCreator.ViewModels
 
         private MEPCurve CreateNewPipe(MEPCurve baseCurve, XYZ[] breakPoints)
         {
-            RaiseCloseRequest();
             var secondCurveId = PlumbingUtils.BreakCurve(RevitApi.Document, baseCurve.Id, breakPoints[0]);
             var thirdCurveId = BreakBrokenCurve(baseCurve, breakPoints, secondCurveId);
             MEPCurve newPipe = null;
@@ -173,18 +180,21 @@ namespace PipeBypassCreator.ViewModels
         }
 
         private void MovePipe(MEPCurve newPipe)
-        {
-            var heightParam = newPipe.get_Parameter(BuiltInParameter.RBS_OFFSET_PARAM);
-            var height = heightParam.AsDouble();
-            if (IsHorizontal && Direction == Direction.UpVertical)
+        {            
+            if (IsHorizontal)
             {
-                heightParam.Set(height + offset);
+                var heightParam = newPipe.get_Parameter(BuiltInParameter.RBS_OFFSET_PARAM);
+                var height = heightParam.AsDouble();
+                if (Direction == Direction.UpVertical)
+                {
+                    heightParam.Set(height + offset);
+                }
+                else if (Direction == Direction.DownVertical)
+                {
+                    heightParam.Set(height - offset);
+                }
             }
-            else if (IsHorizontal && Direction == Direction.DownVertical)
-            {
-                heightParam.Set(height - offset);
-            }
-            else if (!IsHorizontal)
+            else 
             {
                 if (Direction == Direction.UpHorizontal)
                 {
@@ -254,19 +264,17 @@ namespace PipeBypassCreator.ViewModels
 
         private void CorrectNewConnectorsByAngle()
         {
+            double.TryParse(Corner, out double angle);
+            if (angle >89.99) return;
+            double alpha = angle * (Math.PI / 180);
+
             XYZ A = connector21.Origin;
             XYZ B = connector22.Origin;
-            XYZ C = connector11.Origin;
-            XYZ D = connector32.Origin;
             XYZ E = null;
             XYZ F = null;
-            double.TryParse(Corner, out double angle);
-            double alpha = angle * (Math.PI / 180);
-            E = A + ((B - A) / B.DistanceTo(A) * C.DistanceTo(A) * Math.Cos(alpha) / Math.Sin(alpha));
-            var r = B.DistanceTo(A);
-            var c = C.DistanceTo(A);
-            var f = Math.Cos(alpha) / Math.Sin(alpha);
-            F = B + ((A - B) / B.DistanceTo(A) * D.DistanceTo(B) * Math.Cos(alpha) / Math.Sin(alpha));
+            
+            E = A + ((B - A) / B.DistanceTo(A) * offset * Math.Cos(alpha) / Math.Sin(alpha));            
+            F = B + ((A - B) / B.DistanceTo(A) * offset * Math.Cos(alpha) / Math.Sin(alpha));
             connector21.Origin = E;
             connector22.Origin = F;
         }

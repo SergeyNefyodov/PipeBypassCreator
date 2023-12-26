@@ -72,6 +72,7 @@ namespace PipeBypassCreator.ViewModels.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (!(bool)value) return Binding.DoNothing;
             switch ((string)parameter)
             {
                 case "upVert":
